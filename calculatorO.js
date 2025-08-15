@@ -29,11 +29,6 @@ const divide = function (a, b) {
   return a / b;
 };
 
-// console.log(add(2,3))
-// console.log(subtract(2,3))
-// console.log(multiply(2,3))
-// console.log(divide(3,3))
-
 const operate = function (num1, operator, num2) {
   if (operator == "+") {
     return add(num1, num2);
@@ -48,6 +43,10 @@ const operate = function (num1, operator, num2) {
     return divide(num1, num2);
   }
 };
+
+function roundResult(num) {
+  return Math.round(num * 1e4) / 1e4; // rounds to 4 decimal places
+}
 
 anyButton.forEach((btn) => {
   btn.addEventListener("click", function () {
@@ -99,7 +98,8 @@ anyButton.forEach((btn) => {
       displayscreen.textContent = String(num1);
       console.log(
         `another operator is pressed again by user`,
-        `this is operator type user selected again: ${operator}`,`operator replaced from ${operator} to ${btn.textContent}`
+        `this is operator type user selected again: ${operator}`,
+        `operator replaced from ${operator} to ${btn.textContent}`
       );
     } else if (
       step == 2 &&
@@ -124,8 +124,9 @@ anyButton.forEach((btn) => {
         `equal to sign is clicked to check result....................`
       );
       let result = operate(num1, operator, num2);
+      result = roundResult(result); // avoid overflow
       displayscreen.textContent = result;
-      num1 = undefined
+      num1 = undefined;
       num2 = undefined;
       step = 1;
 
@@ -139,6 +140,7 @@ anyButton.forEach((btn) => {
         `another operator is clicked so we will evaluate result ....................`
       );
       let result = operate(num1, operator, num2);
+      result = roundResult(result); // avoid overflow
       displayscreen.textContent = result;
       num1 = result;
       num2 = undefined;
@@ -160,6 +162,16 @@ anyButton.forEach((btn) => {
       operator = undefined;
       step = 1;
       return; // stop further calculation
+    }
+    if (btn.textContent == ".") {
+      if (num1 !== undefined && num2 == undefined) {
+        num1 += btn.textContent;
+        displayscreen.textContent = num1;
+        step = 1;
+      } else {
+        num2 += btn.textContent;
+        displayscreen.textContent = num2;
+      }
     }
   });
 });
