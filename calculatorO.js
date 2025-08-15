@@ -90,6 +90,19 @@ anyButton.forEach((btn) => {
       );
     } else if (
       step == 2 &&
+      ["+", "-", "/", "X"].includes(btn.textContent) &&
+      num2 == undefined
+    ) {
+      let operatorUse = btn.textContent;
+      operator = operatorUse;
+      step = 2;
+      displayscreen.textContent = String(num1);
+      console.log(
+        `another operator is pressed again by user`,
+        `this is operator type user selected again: ${operator}`,`operator replaced from ${operator} to ${btn.textContent}`
+      );
+    } else if (
+      step == 2 &&
       ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
         btn.textContent
       ) &&
@@ -139,6 +152,14 @@ anyButton.forEach((btn) => {
       num2 = undefined;
       operator = undefined;
       step = 1;
+    }
+    if (operator === "/" && Number(num2) === 0) {
+      displayscreen.textContent = "Nice try, Einstein 🙃";
+      num1 = undefined;
+      num2 = undefined;
+      operator = undefined;
+      step = 1;
+      return; // stop further calculation
     }
   });
 });
