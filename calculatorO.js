@@ -26,7 +26,8 @@ const multiply = function (a, b) {
 };
 
 const divide = function (a, b) {
-  return a / b;
+ return a / b;
+
 };
 
 const operate = function (num1, operator, num2) {
@@ -39,9 +40,14 @@ const operate = function (num1, operator, num2) {
   if (operator == "X") {
     return multiply(num1, num2);
   }
-  if (operator == "/") {
+  if (operator == "/" && Number(num2) === 0) {
+    return null
+   
+  }
+    if (operator == "/" ) {
     return divide(num1, num2);
   }
+  
 };
 
 function roundResult(num) {
@@ -120,16 +126,17 @@ anyButton.forEach((btn) => {
 
     // STEP 2 -> STEP 3: '=' button press (calculation)
     else if (step === 2 && btn.textContent === "=" && num2 !== undefined) {
-      console.log(
-        `equal to sign is clicked to check result....................`
-      );
+      console.log(`equal to sign is clicked to check result....................` );
       let result = operate(num1, operator, num2);
+        if (result === null) { // divide by zero detected
+    displayscreen.textContent = "Nice try, Einstein 🙃";}
+    else{
       result = roundResult(result); // avoid overflow
       displayscreen.textContent = result;
+    }
       num1 = undefined;
       num2 = undefined;
       step = 1;
-
       console.log(num1, "num1 became after result");
     } else if (
       step === 2 &&
@@ -155,23 +162,26 @@ anyButton.forEach((btn) => {
       operator = undefined;
       step = 1;
     }
-    if (operator === "/" && Number(num2) === 0) {
-      displayscreen.textContent = "Nice try, Einstein 🙃";
-      num1 = undefined;
-      num2 = undefined;
-      operator = undefined;
-      step = 1;
-      return; // stop further calculation
-    }
+    // if (operator === "/" && Number(num2) === 0) {
+    //   displayscreen.textContent = "Nice try, Einstein 🙃";
+    //   num1 = undefined;
+    //   num2 = undefined;
+    //   operator = undefined;
+    //   step = 1;
+    //   return; // stop further calculation
+    // }
     if (btn.textContent == ".") {
       if (num1 !== undefined && num2 == undefined) {
         num1 += btn.textContent;
         displayscreen.textContent = num1;
+      displayscreen.textContent.includes(".")? document.getElementById("dot").disabled=true :document.getElementById("dot").disabled=false
         step = 1;
       } else {
         num2 += btn.textContent;
         displayscreen.textContent = num2;
-      }
+  displayscreen.textContent.includes(".") == "."? document.getElementById("dot").disabled=true :document.getElementById("dot").disabled=false
+step=2      
+}
     }
   });
 });
