@@ -1,13 +1,13 @@
-let num1;
-let num2;
-let operator;
-let step = 1; //→ waiting for first number
-//Step= 2 → waiting for second number
-//Step 3 → waiting for operator
-//Step 4 → if another number is clicked → calculate result
 
-const anyButton = document.querySelectorAll(".btn");
+let num1 = "";
+let num2 = "";
+let operator;
+let step = 1;
+let justCalculated = false; // tracks if last action was "="
 const displayscreen = document.querySelector(".display");
+const buttons = document.querySelectorAll(".btn");
+const backSpacebtn=document.querySelector("#erase")
+
 
 const add = function (a, b) {
   return a + b;
@@ -16,10 +16,6 @@ const add = function (a, b) {
 const subtract = function (a, b) {
   return a - b;
 };
-
-// const multiply = function (...arg) {
-//   return arg.reduce((acc,curr)=>acc*curr,1);
-// };
 
 const multiply = function (a, b) {
   return a * b;
@@ -53,135 +49,96 @@ const operate = function (num1, operator, num2) {
 function roundResult(num) {
   return Math.round(num * 1e4) / 1e4; // rounds to 4 decimal places
 }
-
-anyButton.forEach((btn) => {
+buttons.forEach((btn) => {
   btn.addEventListener("click", function () {
-    console.log(`button of any number is clicked`);
-    // STEP 1: num1 ko build karo (multi-digit allowed)
-    if (
-      step == 1 &&
-      ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
-        btn.textContent
-      )
-    ) {
-      if (num1 === undefined) {
-        console.log(`step one is started................. `);
-        let num = Number(btn.textContent);
-        num1 = num;
-        step = 1;
-        console.log(`this is num1 : ${num1} `);
-      } else {
-        console.log(`again user has clicked on a number ...................`);
-        num1 = Number(String(num1) + btn.textContent);
-        console.log(`second digit is concatenated with number 1 digit`);
-      }
-      displayscreen.textContent = String(num1);
-    }
-    // STEP 1 -> STEP 2: operator aaya to step badlo
-    else if (
-      step == 1 &&
-      ["+", "-", "/", "X"].includes(btn.textContent) &&
-      num1 !== undefined
-    ) {
-      console.log(
-        `step 2 has started to select operator.......................`
-      );
-      let operatorUse = btn.textContent;
-      operator = operatorUse;
-      step = 2;
-      displayscreen.textContent = String(num1);
-      console.log(
-        `this is operator type user selected : ${operator} and stepincreased to  step number : ${step}`
-      );
-    } else if (
-      step == 2 &&
-      ["+", "-", "/", "X"].includes(btn.textContent) &&
-      num2 == undefined
-    ) {
-      let operatorUse = btn.textContent;
-      operator = operatorUse;
-      step = 2;
-      displayscreen.textContent = String(num1);
-      console.log(
-        `another operator is pressed again by user`,
-        `this is operator type user selected again: ${operator}`,
-        `operator replaced from ${operator} to ${btn.textContent}`
-      );
-    } else if (
-      step == 2 &&
-      ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
-        btn.textContent
-      ) &&
-      operator !== undefined
-    ) {
-      console.log(`step 2 has started...................`);
-      if (num2 === undefined) {
-        num2 = Number(btn.textContent);
-      } else {
-        num2 = Number(String(num2) + btn.textContent);
-      }
-      displayscreen.textContent = String(num2);
-      console.log(`this is num2 : ${num2} and this is step number : ${step}`);
-    }
+    console.log(`Step: ${step}, num1: ${num1}, num2: ${num2}, operator: ${operator}`);
 
-    // STEP 2 -> STEP 3: '=' button press (calculation)
-    else if (step === 2 && btn.textContent === "=" && num2 !== undefined) {
-      console.log(`equal to sign is clicked to check result....................` );
-      let result = operate(num1, operator, num2);
-        if (result === null) { // divide by zero detected
-    displayscreen.textContent = "Nice try, Einstein 🙃";}
-    else{
-      result = roundResult(result); // avoid overflow
-      displayscreen.textContent = result;
-    }
-      num1 = undefined;
-      num2 = undefined;
-      step = 1;
-      console.log(num1, "num1 became after result");
-    } else if (
-      step === 2 &&
-      ["+", "-", "/", "X"].includes(btn.textContent) &&
-      num2 !== undefined
-    ) {
-      console.log(
-        `another operator is clicked so we will evaluate result ....................`
-      );
-      let result = operate(num1, operator, num2);
-      result = roundResult(result); // avoid overflow
-      displayscreen.textContent = result;
-      num1 = result;
-      num2 = undefined;
-      operator = btn.textContent;
-      step = 2;
-    }
-    if (btn.textContent == "C") {
-      console.log(`clear is pressed`);
-      displayscreen.textContent = "";
-      num1 = undefined;
-      num2 = undefined;
-      operator = undefined;
-      step = 1;
-    }
-    // if (operator === "/" && Number(num2) === 0) {
-    //   displayscreen.textContent = "Nice try, Einstein 🙃";
-    //   num1 = undefined;
-    //   num2 = undefined;
-    //   operator = undefined;
-    //   step = 1;
-    //   return; // stop further calculation
-    // }
-    if (btn.textContent == ".") {
-      if (num1 !== undefined && num2 == undefined) {
+    // --- NUMBER or DECIMAL handling ---
+    if (   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9","."].includes(
+        btn.textContent) ){
+            if (justCalculated) {
+    num1 = "";
+    num2 = "";
+    operator = undefined;
+    step = 1;
+    justCalculated = false;
+}
+      if (step === 1) {
+        if (btn.textContent === "." && num1.includes(".")) 
+            return; 
         num1 += btn.textContent;
         displayscreen.textContent = num1;
-      displayscreen.textContent.includes(".")? document.getElementById("dot").disabled=true :document.getElementById("dot").disabled=false
-        step = 1;
-      } else {
+      } 
+      else if (step === 2) {
+        if (btn.textContent === "." && num2.includes(".")) return;
         num2 += btn.textContent;
         displayscreen.textContent = num2;
-  displayscreen.textContent.includes(".") == "."? document.getElementById("dot").disabled=true :document.getElementById("dot").disabled=false
-step=2      
-}
+      }
+      return; // Stop here so it doesn’t fall into operator check
+    }
+
+    // --- OPERATOR handling ---
+    if (["+", "-", "X", "/"].includes(btn.textContent)) {
+          justCalculated = false;
+      if (step === 1 && num1 !== "") {
+        operator = btn.textContent;
+        step = 2;
+      } else if (step === 2 && num2 === "") {
+        // replace operator if pressed again before num2 entered
+        operator = btn.textContent;
+      } else if (step === 2 && num2 !== "") {
+        // Chain calculation
+        num1 = String(operate( Number(num1), operator,Number(num2)));
+        num2 = "";
+        operator = btn.textContent;
+        displayscreen.textContent = num1;
+        step=2
+      }
+      return;
+    }
+
+    // --- EQUALS handling ---
+    if (btn.textContent === "=") {
+       justCalculated = true;
+ if (num1 !== "" && num2 !== "" && operator) {
+        let result = operate(Number(num1), operator, Number(num2));
+          if (result === null) { // divide by zero detected
+    displayscreen.textContent = "Nice try, Einstein 🙃";}
+
+          else{    result = roundResult(result); // avoid overflow
+        num1 = String(result);
+        num2 = "";
+        operator = undefined;
+           displayscreen.textContent = num1;
+        step = 1;
+          }
+      }else {
+    // ❌ Do nothing if calculation is incomplete
+    // Optional: show an error message or blink the screen
+    console.warn("Incomplete calculation — ignoring '=' press");
+  }
+      return;
+    }
+
+    // --- CLEAR handling ---
+    if (btn.textContent === "C") {
+      num1 = "";
+      num2 = "";
+      operator = undefined;
+      step = 1;
+      displayscreen.textContent = "";
+      return;
     }
   });
 });
+
+backSpacebtn.addEventListener("click", function(){
+let lastelement=displayscreen.textContent.slice(0,-1)
+displayscreen.textContent=lastelement
+  if (step === 1) {
+    num1 = num1.slice(0, -1);
+  } else if (step === 2) {
+    num2 = num2.slice(0, -1);
+  }
+})
+
