@@ -125,7 +125,7 @@ anyButton.forEach((btn) => {
       );
       let result = operate(num1, operator, num2);
       displayscreen.textContent = result;
-      num1 = result;
+      num1 = undefined
       num2 = undefined;
       step = 1;
 
